@@ -1,0 +1,36 @@
+{
+  "name": "healthex-refresh-orchestrator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Patient Data Refresh Orchestrator \u2014 schedules, executes and tracks EHR data refresh jobs",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "start": "npm run build && node dist/main.js",
+    "dev": "tsx watch src/main.ts",
+    "demo": "ALLOW_DATABASE_RESET=1 tsx scripts/demo.ts",
+    "db:reset": "ALLOW_DATABASE_RESET=1 tsx scripts/db-reset.ts",
+    "db:psql": "docker compose exec postgres psql -U postgres -d healthex",
+    "db:psql:test": "docker compose exec postgres psql -U postgres -d healthex_test",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "fastify": "^5.2.1",
+    "pg": "^8.13.1",
+    "pino": "^9.6.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/pg": "^8.11.10",
+    "pino-pretty": "^13.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.10"
+  }
+}

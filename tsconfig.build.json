@@ -1,0 +1,12 @@
+// Build config: emits only src/. The root tsconfig.json deliberately covers
+// tests and scripts too, so the editor and `npm run typecheck` check everything,
+// but tests must not end up in dist/.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}

@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "vitest.explorer",
+    "ms-azuretools.vscode-docker",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg"
+  ]
+}

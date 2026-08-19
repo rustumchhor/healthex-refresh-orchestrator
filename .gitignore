@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.log
+.hx-sync.tgz
+.hx-deps.tgz
+.DS_Store
+tmp/

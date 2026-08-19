@@ -1,0 +1,81 @@
+# Runs the system the way it would actually be deployed: the scheduler, the
+# workers and the mock EHR as separate containers, with workers scalable
+# independently.
+#
+#   docker compose up --build              -> 1 scheduler, 2 workers
+#   docker compose up --build --scale worker=4
+#
+# Scaling workers needs no configuration change anywhere, which is the point:
+# coordination lives in the database, not in the deployment.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: healthex
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d healthex']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  mock-ehr:
+    build: .
+    environment:
+      ROLE: mock-ehr
+      MOCK_EHR_PORT: '4010'
+      MOCK_RATE_LIMIT_PER_MIN: '160'
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/healthex
+    ports:
+      - '4010:4010'
+    # service_started only means the container is running. Without this, workers
+    # can hit ECONNREFUSED during startup and spend a patient's retry budget on
+    # our own boot ordering.
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://localhost:4010/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  # Scheduler + admin API. Also the process that applies schema and seed on an
+  # empty database; the advisory lock in migrate.ts makes that safe even though
+  # workers boot at the same time.
+  orchestrator:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mock-ehr:
+        condition: service_healthy
+    environment:
+      ROLE: scheduler,api
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/healthex
+      MOCK_EHR_BASE_URL: http://mock-ehr:4010
+      ADMIN_PORT: '4000'
+      SCHEDULER_TICK_MS: '2000'
+      LOG_LEVEL: info
+    ports:
+      - '4000:4000'
+
+  worker:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mock-ehr:
+        condition: service_healthy
+    environment:
+      ROLE: worker
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/healthex
+      MOCK_EHR_BASE_URL: http://mock-ehr:4010
+      # Two async workers per container; scale containers for more.
+      WORKER_COUNT: '2'
+      WORKER_BATCH_SIZE: '5'
+      LEASE_SECONDS: '30'
+      LOG_LEVEL: info
+    deploy:
+      replicas: 2
