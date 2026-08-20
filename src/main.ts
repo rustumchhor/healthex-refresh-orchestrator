@@ -8,6 +8,23 @@ import { buildApi } from './api.js';
 import { buildMockEhr } from './mock-ehr/server.js';
 
 /**
+ * CORE OPERATION 6 — assemble runtime roles and manage their lifecycle.
+ * WALKTHROUGH: This is a presentation label. ROLE=all runs the local system;
+ * Compose selects scheduler/api, worker, and mock-ehr roles independently from
+ * the same executable. Workers remain horizontally scalable because durable
+ * coordination lives in PostgreSQL.
+ *
+ * SEARCHABLE WALKTHROUGH INDEX:
+ *   0     schema and deterministic seed
+ *   1     eligibility
+ *   2     scheduling (2A jitter, 2B scheduler loop)
+ *   3     atomic claim/rate admission (3A worker, 3B EHR, 3C outcomes)
+ *   4     completion and retry state machine
+ *   5     admin API and observability
+ *   6     runtime, configuration, migration, and transaction setup
+ *   7     deterministic mock EHR boundary
+ *   8     end-to-end guided demo
+ *
  * Entry point.
  *
  * ROLE decides what this process is. `all` runs everything in one process,

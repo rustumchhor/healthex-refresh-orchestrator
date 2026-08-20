@@ -4,6 +4,11 @@ import { config } from './config.js';
 import { logger } from './logger.js';
 
 /**
+ * CORE OPERATION 2B — run the recurring scheduling loop.
+ * WALKTHROUGH: After Operation 2, show that each tick expires over-deadline
+ * work and materializes a bounded batch. No leader election is required
+ * because the database uniqueness constraint settles concurrent inserts.
+ *
  * The scheduler.
  *
  * Asks "who is due?" on a timer and materialises jobs for them.

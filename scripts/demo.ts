@@ -1,4 +1,10 @@
 /**
+ * CORE OPERATION 8 — verify the complete workflow in a guided demo.
+ * WALKTHROUGH: This is a presentation label. The script resets/reads real
+ * PostgreSQL state, invokes real scheduling and worker logic, calls the mock
+ * over HTTP, demonstrates constrained endpoint capacity, then prints database-
+ * backed invariants and cost/coalescing results.
+ *
  * Observable demo: `npm run demo`
  *
  * Resets the database, fills the tables, then runs the real scheduler and real

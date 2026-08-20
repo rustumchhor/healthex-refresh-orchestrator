@@ -1,4 +1,9 @@
 /**
+ * CORE OPERATION 7A — make mock outcomes reproducible.
+ * WALKTHROUGH: Patient references hash to a stable success, transient, or
+ * permanent behavior so the same seed produces explainable tests and demos.
+ * The outcome percentages are demo choices, not real EHR reliability claims.
+ *
  * Deterministic behaviour selection for the mock EHR.
  *
  * Outcomes are derived from a hash of the patient reference rather than from

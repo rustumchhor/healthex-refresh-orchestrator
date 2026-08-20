@@ -2,6 +2,13 @@ import pg from 'pg';
 import type { PoolClient } from 'pg';
 import { config } from './config.js';
 
+/**
+ * CORE OPERATION 6C — provide the shared transaction boundary.
+ * WALKTHROUGH: Database time coordinates leases and scheduling. The
+ * withTransaction() helper makes claim + token spend and completion +
+ * enrollment freshness atomic.
+ */
+
 const { Pool, types } = pg;
 
 // node-postgres returns bigint (int8) as a string to avoid precision loss.

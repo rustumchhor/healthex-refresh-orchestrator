@@ -5,6 +5,11 @@ import { scheduleRefreshBatch } from './domain/schedule.js';
 import { checkEligibility, findDuePatients } from './domain/eligibility.js';
 
 /**
+ * CORE OPERATION 5 — expose manual refresh and operational visibility.
+ * WALKTHROUGH: This is a presentation label, not a fifth packet operation.
+ * Show /refresh for user-triggered priority work, /stats and /jobs for queue
+ * visibility, and /health versus /ready for liveness versus database readiness.
+ *
  * Admin API.
  *
  * Small on purpose. It exists for two reasons: to expose the user-triggered

@@ -1,4 +1,9 @@
 /**
+ * CORE OPERATION 2A — spread scheduled load deterministically.
+ * WALKTHROUGH: Present as a short scheduling substep. Patient-based hashing
+ * spreads normal work without making tests or future placement random; manual
+ * refreshes bypass this delay in scheduleRefreshBatch().
+ *
  * Deterministic spreading.
  *
  * "Distribution: spread load over time to avoid thundering herd" is a

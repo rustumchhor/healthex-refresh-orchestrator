@@ -2,6 +2,10 @@
 # workers and the mock EHR as separate containers, with workers scalable
 # independently.
 #
+# CORE OPERATION 6D — deploy the runtime roles independently.
+# WALKTHROUGH: Postgres owns coordination, the orchestrator runs scheduler/API,
+# and worker containers scale without changing application configuration.
+#
 #   docker compose up --build              -> 1 scheduler, 2 workers
 #   docker compose up --build --scale worker=4
 #

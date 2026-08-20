@@ -1,5 +1,11 @@
 -- Patient Data Refresh Orchestrator — schema
 --
+-- CORE OPERATION 0 — establish the durable data model and invariants.
+-- WALKTHROUGH: Present this before Operation 1. Focus on patient-level jobs,
+-- the one-active-job partial unique index, leases, the priority claim index,
+-- and one rate-limit bucket per EHR endpoint. This is presentation setup, not
+-- a separately numbered operation from the exercise.
+--
 -- Design notes that are load-bearing (see README for full reasoning):
 --
 --   * Postgres is both the queue and the system of record. There is no second
@@ -89,7 +95,7 @@ CREATE TABLE refresh_jobs (
   id                  bigserial   PRIMARY KEY,
   patient_id          bigint      NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
 
-  -- AUDIT ONLY: which due enrollments caused this refresh, or were folded into
+  -- 3, AUDIT ONLY: which due enrollments caused this refresh, or were folded into
   -- it. A patient enrolled in a daily and a weekly study that both came due
   -- gets ONE refresh rather than two — the "avoid redundant work" requirement
   -- made concrete — and this column records that fact.
@@ -143,6 +149,7 @@ CREATE TABLE refresh_jobs (
   finished_at         timestamptz
 );
 
+-- 1
 -- Duplicate prevention, enforced by the database rather than by a
 -- check-then-insert race in application code. Two schedulers acting on the same
 -- patient cannot both win: the loser's INSERT hits this index and is swallowed
@@ -152,16 +159,21 @@ CREATE TABLE refresh_jobs (
 -- why GET /patients/{id}/data-retrieval/status needs no request identifier.
 -- Terminal rows are excluded, so history accumulates and the next cycle can
 -- schedule the patient again freely.
+
+-- 1 - partial unique) → duplicate prevention, race-proof by construction.
+-- partial unique index covering only `pending` and `in_progress` rows. Historical completed/failed rows may accumulate,
+-- but the database rejects a second live job for the same patient.
 CREATE UNIQUE INDEX refresh_jobs_one_active_per_patient
   ON refresh_jobs (patient_id)
   WHERE status IN ('pending', 'in_progress');
 
--- Backs the claim query exactly: highest priority first, then oldest due.
+-- 2 - Backs the claim query exactly: highest priority first, then oldest due.
 -- Partial, so it indexes only live work and stays small regardless of how much
 -- completed history the table accumulates.
 CREATE INDEX refresh_jobs_claim
   ON refresh_jobs (priority DESC, run_at)
   WHERE status IN ('pending', 'in_progress');
+  -- 4. run_at column carries jitter, retry backoff, 429 cooldown and next-poll time. 4 in 1.
 
 -- Backs the "has this patient failed recently?" lookup that keeps the scheduler
 -- from immediately re-creating a job that just failed permanently.

@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+/**
+ * CORE OPERATION 6A — validate runtime configuration before startup.
+ * WALKTHROUGH: Schema defaults live here. assertCoherent() protects cross-value
+ * safety rules such as lease > HTTP timeout and a deadline long enough for the
+ * configured retry schedule.
+ */
+
 // Load .env when one exists, using Node's built-in parser — no dotenv
 // dependency, and it works identically under `node`, `tsx` and `vitest`
 // rather than relying on a CLI flag that only `npm start` would pass.

@@ -13,6 +13,13 @@ const seedPath = new URL('../db/seed.sql', import.meta.url);
 /** Arbitrary but fixed: any process doing schema work takes this same lock. */
 const MIGRATION_LOCK_KEY = 8_421_337;
 
+/**
+ * CORE OPERATION 6B — initialize the database safely.
+ * WALKTHROUGH: ensureSchema() uses a PostgreSQL advisory lock so concurrently
+ * starting roles cannot race schema creation. resetDatabase() is deliberately
+ * destructive and protected by an explicit local/reset safety check.
+ */
+
 async function tablesExist(): Promise<boolean> {
   const { rows } = await pool.query(`SELECT to_regclass('public.refresh_jobs') IS NOT NULL AS present`);
   return Boolean(rows[0]?.present);

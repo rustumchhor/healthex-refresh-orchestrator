@@ -1,6 +1,12 @@
 import type { RefreshOutcome } from '../types.js';
 
 /**
+ * CORE OPERATION 3B — translate the external EHR API into domain outcomes.
+ * WALKTHROUGH: Present after Worker.process() and before Operation 4. HTTP and
+ * network behavior becomes accepted, success, transient, permanent,
+ * rate_limited, ambiguous, still_running, or poll_deferred. This keeps retry
+ * policy out of the transport layer.
+ *
  * The orchestrator's window onto the external world.
  *
  * Its whole job is translation: turn HTTP status codes, response bodies and

@@ -6,6 +6,12 @@ import { logger } from './logger.js';
 import type { ClaimedJob } from './types.js';
 
 /**
+ * CORE OPERATION 3A — execute claimed jobs one HTTP action at a time.
+ * WALKTHROUGH: Present after claimJobs() and before Operation 4. runOnce()
+ * claims an admitted batch; process() starts a refresh when no external request
+ * ID exists or polls an accepted retrieval when it does. Workers release the
+ * lease between polls, so asynchronous EHR work never pins a worker.
+ *
  * A worker.
  *
  * Workers hold no state worth recovering. Everything durable is a row; the

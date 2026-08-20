@@ -35,6 +35,8 @@ export interface Eligibility {
   reason: string;
 }
 
+
+// CORE OPERATION 1 — determine refresh eligibility.
 export async function checkEligibility(patientId: number, studyId: number, db: Queryable = pool): Promise<Eligibility | null> {
   const { rows } = await db.query(
     `SELECT ps.patient_id,
@@ -116,6 +118,16 @@ export interface DuePatient {
  * Patients with a live job are filtered out here. That is an optimisation, not
  * the correctness mechanism — the unique index is what actually prevents
  * duplicates when two schedulers run this at the same instant.
+ *
+ * findDuePatients() is the Main bulk scheduling query. It:
+// 1. finds active enrollments whose refresh interval elapsed;
+// 2. applies the consent boost if needed;
+// 3. excludes patients with a live job;
+// 4. suppresses patients in failure quarantine;
+// 5. groups by patient;
+// 6. aggregates due study IDs; and
+// 7. keeps the maximum priority and tightest cadence.
+ *
  */
 export async function findDuePatients(
   opts: { patientIds?: number[]; limit?: number } = {},
@@ -174,6 +186,7 @@ export async function findDuePatients(
       GROUP BY d.patient_id, p.external_ref
       ORDER BY MAX(d.priority) DESC, d.patient_id
       LIMIT $2`,
+      // Group By - A patient in a daily study and a weekly study that both come due gets one refresh, not two. Priority is the MAX across due studies, due time is driven by the tightest. That's challenge #7 — avoid redundant work
     [
       opts.patientIds ?? null,
       opts.limit ?? config.SCHEDULER_BATCH_LIMIT,

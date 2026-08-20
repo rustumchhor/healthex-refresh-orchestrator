@@ -1,3 +1,9 @@
+/**
+ * CORE OPERATION 3C — define the job and outcome vocabulary.
+ * WALKTHROUGH: Use RefreshOutcome as the bridge from the EHR client to
+ * recordOutcome(). Every external condition must map to exactly one union
+ * member, and Operation 4 must handle every member.
+ */
 export type JobStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
 
 export type FailureClass = 'transient' | 'permanent' | 'rate_limited' | 'timeout';

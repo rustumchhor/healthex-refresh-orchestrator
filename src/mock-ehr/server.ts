@@ -3,6 +3,12 @@ import { z } from 'zod';
 import { defaultBehavior, hashString, type Behavior, type BehaviorKind } from './behavior.js';
 
 /**
+ * CORE OPERATION 7 — simulate the external asynchronous EHR boundary.
+ * WALKTHROUGH: This is a presentation label. The mock is the only simulated
+ * component; PostgreSQL, scheduling, workers, HTTP calls, and retries are real.
+ * It supports accepted work, polling, transient/permanent failure, rate limits,
+ * and idempotent POST replay.
+ *
  * Mock of the external HealthEx/EHR API.
  *
  * This is the ONLY simulated component in the project. It implements exactly
